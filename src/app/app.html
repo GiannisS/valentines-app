@@ -6,28 +6,155 @@
       Hey <span class="name">{{ girlfriendName() }}</span>
     </h1>
 
-    <p class="subtitle">I have a very important question…</p>
+    <p class="subtitle">I have a very important question… but first, a tiny quiz 😄</p>
 
+    <!-- QUIZ / FINAL PANEL -->
     <div class="question">
       <div class="heart">❤️</div>
-      <h2>Will you be my Valentine?</h2>
-      <p class="small">(No pressure. Only extremely cute consequences.)</p>
+
+      <!-- Step: VIBE -->
+      @if (activeStep() === 'vibe') {
+        <ng-container>
+          <h2>Pick our vibe tonight</h2>
+          <p class="small">Pick one or more and I’ll build the perfect plan.</p>
+
+          <div class="options">
+            @for (option of vibeOptions; track option.label) {
+              <button
+                class="chip"
+                [class.active]="selectedVibes().includes(option.label)"
+                (click)="selectVibe(option.label)"
+              >
+                {{ option.emoji }} {{ option.label }}
+              </button>
+            }
+          </div>
+
+          <div class="nav">
+            <button class="btn yes" (click)="goNext()" [disabled]="selectedVibes().length === 0">
+              Next ➜
+            </button>
+          </div>
+        </ng-container>
+      }
+
+      <!-- Step: LOCATION -->
+      @if (activeStep() === 'location') {
+        <ng-container>
+          <h2>Choose location</h2>
+          <p class="small">Choose where we should meet.</p>
+
+          <div class="options">
+            @for (option of locationOptions; track option.label) {
+              <button
+                class="chip"
+                [class.active]="selectedLocation() === option.label"
+                (click)="selectLocation(option.label)"
+              >
+                {{ option.emoji }} {{ option.label }}
+              </button>
+            }
+          </div>
+
+          <div class="nav">
+            <button class="btn no" (click)="goBack()">← Back</button>
+            <button class="btn yes" (click)="goNext()" [disabled]="!selectedLocation()">
+              Next ➜
+            </button>
+          </div>
+        </ng-container>
+      }
+
+      <!-- Step: DESSERT -->
+      @if (activeStep() === 'dessert') {
+        <ng-container>
+          <h2>Choose dessert</h2>
+          <p class="small">Important decisions only.</p>
+
+          <div class="options">
+            @for (option of dessertOptions; track option.label) {
+              <button
+                class="chip"
+                [class.active]="selectedDessert() === option.label"
+                (click)="selectDessert(option.label)"
+              >
+                {{ option.emoji }} {{ option.label }}
+              </button>
+            }
+          </div>
+
+          <div class="nav">
+            <button class="btn no" (click)="goBack()">← Back</button>
+            <button class="btn yes" (click)="goNext()" [disabled]="!selectedDessert()">
+              Next ➜
+            </button>
+          </div>
+        </ng-container>
+      }
+      <!-- Step: PROMISE -->
+      @if (activeStep() === 'promise') {
+        <ng-container>
+          <h2>One tiny promise</h2>
+          <p class="small">Pick as MANY as what you want and I’ll make them happen. No pressure.</p>
+
+          <div class="options">
+            @for (option of promiseOptions; track option.label) {
+              <button
+                class="chip"
+                [class.active]="selectedPromise().includes(option.label)"
+                (click)="selectPromise(option.label)"
+              >
+                {{ option.emoji }} {{ option.label }}
+              </button>
+            }
+          </div>
+
+          <div class="nav">
+            <button class="btn no" (click)="goBack()">← Back</button>
+            <button class="btn yes" (click)="goNext()" [disabled]="selectedPromise().length === 0">
+              Reveal question ✨
+            </button>
+          </div>
+        </ng-container>
+      }
+      <!-- Step: FINAL QUESTION -->
+      @if (activeStep() === 'final') {
+        <ng-container>
+          <h1 class="title">
+            <span class="name">Will you be my Valentine?</span>
+          </h1>
+          <p class="small">(No pressure. Only extremely cute consequences.)</p>
+
+          @if (hasQuizSelections()) {
+            <div class="summary">
+              <div class="summary-title">Our perfect date recipe:</div>
+              <div class="summary-row">
+                ✨ Vibe: <strong>{{ selectedVibes().join(', ') }}</strong>
+              </div>
+              <div class="summary-row">
+                📍 Location: <strong>{{ selectedLocation() }}</strong>
+              </div>
+              <div class="summary-row">
+                🍰 Dessert: <strong>{{ selectedDessert() }}</strong>
+              </div>
+              <div class="summary-row">
+                💝 Promise:
+                <strong>
+                  {{ selectedPromise().join(', ') }}
+                </strong>
+              </div>
+            </div>
+          }
+          <div class="actions final-actions">
+            <button class="btn yes" (click)="onYesClick()">Yes 💖</button>
+            <button class="btn no" (click)="onNoClick()">No 🙃</button>
+            <button class="link" (click)="restartQuiz()">Restart quiz</button>
+          </div>
+        </ng-container>
+      }
     </div>
 
-    <div class="actions">
-      <button class="btn yes" (click)="onYesClick()">Yes 💖</button>
-
-      <button
-        #noButton
-        class="btn no"
-        (mouseenter)="onNoHover()"
-        (click)="onNoClick()"
-        [style.transform]="noTransform()"
-      >
-        No 🙃
-      </button>
-    </div>
-
+    <!-- RESULT -->
     @if (answer() !== 'none') {
       <div class="result">
         @if (answer() === 'yes') {
@@ -36,20 +163,27 @@
             <p>I officially claim you for a romantic date.</p>
 
             <div class="details">
-              <div class="detail-row"><span>📅</span> {{ datePlanTitle() }}</div>
-              <div class="detail-row"><span>📍</span> {{ place() }}</div>
+              <div class="detail-row"><span>✨</span> {{ selectedVibes().join(', ') }}</div>
+              <div class="detail-row"><span>🍰</span> {{ selectedDessert() }}</div>
+              <div class="detail-row"><span>📍</span> {{ selectedLocation() }}</div>
+              <div class="detail-row">
+                <span>💝</span>
+                @for (promise of selectedPromise(); track promise) {
+                  <div>{{ promise }}</div>
+                }
+              </div>
               <div class="detail-row"><span>⏰</span> {{ time() }}</div>
-              <div class="detail-row"><span>🍝</span> {{ food() }}</div>
             </div>
-
-            <p class="small">Screenshot this and send it to me with “YESSS” 😄</p>
+            <div class="actions">
+              <button class="btn yes" (click)="addToCalendar()">📅 Add to calendar</button>
+            </div>
           </ng-container>
         }
 
         @if (answer() === 'no') {
           <ng-container>
             <h3>Hmmm 🤔</h3>
-            <p>That button seems… unreliable. Want to try again?</p>
+            <p>Okay. I still think you’re cute though.</p>
           </ng-container>
         }
       </div>
@@ -59,7 +193,7 @@
   <!-- floating hearts -->
   @if (answer() === 'yes') {
     <div class="hearts">
-      @for (item of heartItems(); let itemIndex = $index; track $index) {
+      @for (item of heartItems(); let itemIndex = $index; track itemIndex) {
         <span
           class="float"
           [style.left.%]="heartLeft(itemIndex)"
