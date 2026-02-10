@@ -30,8 +30,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build -- --configuration production --base-href "/valentines-app/"
-
+        run: npm run build -- --configuration production --base-href "/valentines-app/" --deploy-url "/valentines-app/"
       # Upload the build output to GitHub Pages.
       # IMPORTANT: Choose the correct path below (see notes).
       - name: Upload artifact
